@@ -12,4 +12,6 @@ urlpatterns = [
     path('delete_teacher/<int:id>/', views.delete_teacher, name='delete_teacher'),
     path('view_users/', views.view_users, name='view_users'),
     path('statistics/', views.statistics, name='statistics'),
+    path('export_csv/', views.export_teachers_csv, name='export_teachers_csv'),
+    path('import_csv/', views.import_teachers_csv, name='import_teachers_csv'),
 ]

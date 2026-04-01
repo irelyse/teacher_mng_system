@@ -18,15 +18,49 @@
 <div class="container">
   <div class="form-container">
     <h3>Add/Update Teacher</h3>
-    <form action="{% url 'save_teacher' %}" method="POST">
+    <form action="{% url 'save_teacher' %}" method="POST" enctype="multipart/form-data">
       {% csrf_token %}
       <input type="text" name="tname" placeholder="Teacher Name" required>
-      <input type="text" name="subject" placeholder="Subject Handled" required>
+      <input type="text" name="subjects" placeholder="Subjects (comma separated)" required>
       <input type="text" name="qualification" placeholder="Qualification">
       <input type="text" name="contact" placeholder="Contact Info">
       <input type="text" name="leave_record" placeholder="Leave Record (e.g. 2 days)">
+      
+      <select name="status">
+        <option value="Active">Active</option>
+        <option value="On Leave">On Leave</option>
+        <option value="Resigned">Resigned</option>
+      </select>
+      
+      <label>Profile Picture:</label>
+      <input type="file" name="profile_picture" accept="image/*">
+      
+      <label>CV Document:</label>
+      <input type="file" name="cv_document" accept=".pdf,.doc,.docx">
       <button type="submit">Save Teacher</button>
     </form>
+  </div>
+
+  <div class="form-container" style="display: flex; justify-content: space-between; align-items: center; background: #e9ecef; margin-top: 20px;">
+    <!-- Search Bar -->
+    <form action="{% url 'manage_teacher' %}" method="GET" style="display: flex; gap: 10px; flex: 1; max-width: 400px;">
+      <input type="text" name="search" placeholder="Search by Name or Subject..." value="{{ search_query }}" style="margin: 0; padding: 10px;">
+      <button type="submit">Search</button>
+      {% if search_query %}
+        <a href="{% url 'manage_teacher' %}" style="display: flex; align-items: center; padding: 0 10px; text-decoration: none; color: #333;">Clear</a>
+      {% endif %}
+    </form>
+
+    <!-- Export & Import Tools -->
+    <div style="display: flex; gap: 10px; align-items: center;">
+      <a href="{% url 'export_teachers_csv' %}" style="padding: 10px; background: #28a745; color: white; text-decoration: none; border-radius: 5px;">Export CSV</a>
+      
+      <form action="{% url 'import_teachers_csv' %}" method="POST" enctype="multipart/form-data" style="display: flex; gap: 10px; align-items: center; margin: 0;">
+        {% csrf_token %}
+        <input type="file" name="csv_file" accept=".csv" required style="margin: 0;">
+        <button type="submit" style="background: #17a2b8;">Import Bulk CSV</button>
+      </form>
+    </div>
   </div>
 
   <div class="table-container">
@@ -34,22 +68,46 @@
     <table>
       <thead>
         <tr>
+          <th>Photo</th>
           <th>Name</th>
-          <th>Subject</th>
+          <th>Subjects</th>
           <th>Qualification</th>
           <th>Contact</th>
           <th>Leave</th>
+          <th>Status</th>
+          <th>CV</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
         {% for teacher in teachers %}
         <tr>
+          <td>
+            {% if teacher.profile_picture %}
+              <img src="{{ teacher.profile_picture.url }}" width="50" height="50" style="border-radius: 50%;">
+            {% else %}
+              No Photo
+            {% endif %}
+          </td>
           <td>{{ teacher.tname }}</td>
-          <td>{{ teacher.subject }}</td>
+          <td>
+            {% for s in teacher.subjects.all %}
+              {{ s.name }}{% if not forloop.last %}, {% endif %}
+            {% empty %}
+              Unassigned
+            {% endfor %}
+          </td>
           <td>{{ teacher.qualification }}</td>
           <td>{{ teacher.contact }}</td>
           <td>{{ teacher.leave_record }}</td>
+          <td>{{ teacher.status }}</td>
+          <td>
+            {% if teacher.cv_document %}
+              <a href="{{ teacher.cv_document.url }}" target="_blank">View CV</a>
+            {% else %}
+              None
+            {% endif %}
+          </td>
           <td>
             <form action="{% url 'edit_teacher' teacher.id %}" method="GET" style="display:inline;">
               <button type="submit">Edit</button>

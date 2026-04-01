@@ -17,7 +17,7 @@
 
 <div class="container form-container">
   <h3>Edit Teacher Details</h3>
-  <form action="{% url 'save_teacher' %}" method="POST">
+  <form action="{% url 'edit_teacher' teacher.id %}" method="POST" enctype="multipart/form-data">
     {% csrf_token %}
     <!-- Hidden field to pass the teacher ID -->
     <input type="hidden" name="id" value="{{ teacher.id }}">
@@ -25,8 +25,8 @@
     <label>Teacher Name</label>
     <input type="text" name="tname" value="{{ teacher.tname }}" required>
 
-    <label>Subject Handled</label>
-    <input type="text" name="subject" value="{{ teacher.subject }}" required>
+    <label>Subjects Handled (comma separated)</label>
+    <input type="text" name="subjects" value="{% for s in teacher.subjects.all %}{{ s.name }}{% if not forloop.last %}, {% endif %}{% endfor %}" required>
 
     <label>Qualification</label>
     <input type="text" name="qualification" value="{{ teacher.qualification }}">
@@ -36,6 +36,19 @@
 
     <label>Leave Record</label>
     <input type="text" name="leave_record" value="{{ teacher.leave_record }}">
+    
+    <label>Status</label>
+    <select name="status">
+      <option value="Active" {% if teacher.status == 'Active' %}selected{% endif %}>Active</option>
+      <option value="On Leave" {% if teacher.status == 'On Leave' %}selected{% endif %}>On Leave</option>
+      <option value="Resigned" {% if teacher.status == 'Resigned' %}selected{% endif %}>Resigned</option>
+    </select>
+    
+    <label>Profile Picture (Upload new to replace)</label>
+    <input type="file" name="profile_picture" accept="image/*">
+    
+    <label>CV Document (Upload new to replace)</label>
+    <input type="file" name="cv_document" accept=".pdf,.doc,.docx">
 
     <button type="submit">Update Teacher</button>
   </form>
