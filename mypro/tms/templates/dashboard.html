@@ -15,6 +15,9 @@
       <!-- Navigate to View Users page -->
       <a href="{% url 'view_users' %}">Users</a>
 
+      <!-- Navigate to Statistics page -->
+      <a href="{% url 'statistics' %}">Statistics</a>
+
       <!-- Logout (go back to login/index page) -->
       <a href="{% url 'index' %}">Logout</a>
     </div>
@@ -23,6 +26,15 @@
   <div class="container">
     <h2>Welcome to the Dashboard</h2>
     <p>Select an option from the navigation bar above.</p>
+
+    <!-- Leave Analytics -->
+    <div class="form-container" style="text-align: center; margin-top: 40px; padding: 40px;">
+      <h3 style="color: #555;">Teacher Leave Analytics</h3>
+      <div style="font-size: 48px; font-weight: bold; color: #007bff;">
+        {{ avg_leave|default:"0" }}
+      </div>
+      <p style="color: #777;">Average Leave Days per Teacher</p>
+    </div>
   </div>
 </body>
 </html>

@@ -1,3 +1,5 @@
+import pandas as pd
+import plotly.express as px
 from django.shortcuts import render, redirect
 from django.contrib.auth.hashers import make_password, check_password
 from functools import wraps
@@ -39,7 +41,51 @@ def login_view(request):
 # Dashboard page
 @login_required
 def dashboard(request):
-    return render(request, "dashboard.html")
+    # Calculate Average Leave Days using Pandas
+    teachers = Teacher.objects.all()
+    avg_leave = 0
+    if teachers.exists():
+        # Extact numeric part from leave_record (e.g. "2 days" -> 2)
+        leave_data = [t.leave_record for t in teachers]
+        # Clean data: convert to int, ignoring non-numbers safely
+        cleaned_leave = []
+        for l in leave_data:
+            import re
+            match = re.search(r'\d+', l)
+            if match:
+                cleaned_leave.append(int(match.group()))
+            else:
+                cleaned_leave.append(0)
+        
+        df = pd.DataFrame(cleaned_leave, columns=['leave'])
+        avg_leave = round(df['leave'].mean(), 1)
+        
+    return render(request, "dashboard.html", {"avg_leave": avg_leave})
+
+# Statistics page
+@login_required
+def statistics(request):
+    teachers = Teacher.objects.all()
+    if not teachers.exists():
+        return render(request, "statistics.html", {"error": "No data available."})
+
+    # Convert QuerySet to Pandas DataFrame
+    data = list(teachers.values('tname', 'subject', 'qualification'))
+    df = pd.DataFrame(data)
+
+    # 1. Teacher Distribution (Pie Chart by Subject)
+    subject_counts = df['subject'].value_counts().reset_index()
+    subject_counts.columns = ['Subject', 'Count']
+    fig_pie = px.pie(subject_counts, values='Count', names='Subject', title='Teacher Distribution by Subject')
+    pie_html = fig_pie.to_html(full_html=False)
+
+    # 2. Qualification Overview (Bar Chart)
+    qual_counts = df['qualification'].value_counts().reset_index()
+    qual_counts.columns = ['Qualification', 'Count']
+    fig_bar = px.bar(qual_counts, x='Qualification', y='Count', title='Qualification Overview', color='Qualification')
+    bar_html = fig_bar.to_html(full_html=False)
+
+    return render(request, "statistics.html", {"pie_html": pie_html, "bar_html": bar_html})
 
 # Manage teachers page
 @login_required

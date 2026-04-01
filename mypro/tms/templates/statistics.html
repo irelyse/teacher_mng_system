@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Statistics - Teacher Management</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'style.css' %}">
+  <!-- Include Plotly JS for interactive charts -->
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+  <div class="flex-nav">
+    <div><strong>Teacher Management System</strong></div>
+    <div>
+      <a href="{% url 'dashboard' %}">Dashboard</a>
+      <a href="{% url 'manage_teacher' %}">Manage Teachers</a>
+      <a href="{% url 'view_users' %}">Users</a>
+      <a href="{% url 'index' %}">Logout</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2>Teacher Statistics & Analytics</h2>
+    
+    {% if error %}
+      <div class="form-container" style="color: red; text-align: center;">
+        <p>{{ error }}</p>
+      </div>
+    {% else %}
+      <div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; margin-top: 20px;">
+        <!-- Teacher Distribution (Pie Chart) -->
+        <div class="form-container" style="flex: 1; min-width: 400px; padding: 20px;">
+          <h3>Teacher Distribution by Subject</h3>
+          <div>{{ pie_html|safe }}</div>
+        </div>
+
+        <!-- Qualification Overview (Bar Chart) -->
+        <div class="form-container" style="flex: 1; min-width: 400px; padding: 20px;">
+          <h3>Qualification Overview</h3>
+          <div>{{ bar_html|safe }}</div>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</body>
+</html>
