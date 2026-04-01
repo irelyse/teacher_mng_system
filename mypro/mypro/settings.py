@@ -12,11 +12,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECRET KEY — use environment variable in production!
 SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-zq!z-t6owje%6%v3!$d$nn3v0ia*3(53(n8t16cjk1k(&3bqml")
 
-# Set to False for production
-DEBUG = os.getenv("DEBUG", "False") == "True"
+# Set to True for development
+DEBUG = os.getenv("DEBUG", "True") == "True"
 
-# Add your Render URL here
-ALLOWED_HOSTS = ['teacher_mng_system.onrender.com']
+# Local and Production Hosts
+ALLOWED_HOSTS = ['teacher_mng_system.onrender.com', '127.0.0.1', 'localhost']
 
 # Application definition
 INSTALLED_APPS = [
@@ -86,8 +86,9 @@ USE_TZ = True
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
-# Enable GZip compression and caching for static files via Whitenoise
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+# Use manifest storage only in production (DEBUG=False)
+if not DEBUG:
+    STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
